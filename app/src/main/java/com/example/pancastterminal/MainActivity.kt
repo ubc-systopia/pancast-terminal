@@ -17,7 +17,7 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     val WEB_PROTOCOL: String = "https"
-    val BACKEND_ADDR: String = "172.30.118.71"
+    val BACKEND_ADDR: String = "PLACEHOLDER"
     val BACKEND_PORT: String = "8081"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
