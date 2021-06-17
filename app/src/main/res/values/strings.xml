@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Pancast Terminal</string>
+    <string name="send_request_button">Send Request</string>
+</resources>
