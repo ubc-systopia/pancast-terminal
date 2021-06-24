@@ -1,6 +1,6 @@
 # pancast-terminal
-Android application written in Kotlin to act as terminal between dongle and backend
-Currently can only send a single HTTPS request to a backend server at https://<PLACEHOLDER>:8081
+Android application written in Java/Kotlin to act as terminal between dongle and backend. Based heavily on examples from https://github.com/android/connectivity-samples (relied on for Bluetooth connection management code). Also inspired by https://github.com/androidthings/sample-bluetooth-le-gattserver.
+
 
 Setup instructions:
 1. Install Android Studio.
