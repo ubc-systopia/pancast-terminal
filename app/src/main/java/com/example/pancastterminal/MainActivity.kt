@@ -1,5 +1,6 @@
 package com.example.pancastterminal
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,9 +17,7 @@ import kotlin.concurrent.thread
 
 
 class MainActivity : AppCompatActivity() {
-    val WEB_PROTOCOL: String = "https"
-    val BACKEND_ADDR: String = "PLACEHOLDER"
-    val BACKEND_PORT: String = "8081"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,15 +26,35 @@ class MainActivity : AppCompatActivity() {
         // Listener for the send request button
         sendBtn.setOnClickListener(View.OnClickListener {
             thread(start = true) {
-                val response: String? = makeRequest()
+                val response: String? = MainActivity.Companion.makeRequest(
+                    "deadbeefdeadbee",
+                    Integer(0), Integer(0),
+                    Integer(1000), Integer(2000)
+                );
                 if (response != null) {
                     Log.d("REQ", response)
                 }
             }
         })
+
+        val scanBtn: Button = findViewById(R.id.scanBtn)
+        scanBtn.setOnClickListener(View.OnClickListener {
+            thread(start = true) {
+                Log.d("MAIN", "Click")
+                val intent = Intent(this, ScanActivity::class.java)
+                startActivity(intent)
+            }
+        });
     }
 
-    private fun makeRequest(): String? {
+    companion object  {
+    public fun makeRequest(
+        ephId: String,
+        dongleTime: Integer,
+        beaconTime: Integer,
+        beaconId: Integer,
+        locationId: Integer
+    ): String? {
         /*
             Makes a request to a static URL. Uses a trust manager that accepts literally every
             single certificate (INSECURE, vuln. to MITM attacks).
@@ -54,9 +73,22 @@ class MainActivity : AppCompatActivity() {
             .connectionSpecs(listOf(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
             .hostnameVerifier(HostnameVerifier { _, _ -> true })
             .build()
-        val url = "${WEB_PROTOCOL}://${BACKEND_ADDR}:${BACKEND_PORT}/upload"
+        val url = "${Constants.WEB_PROTOCOL}://${Constants.BACKEND_ADDR}:${Constants.BACKEND_PORT}/upload"
         val contentType: MediaType = "application/json; charset=utf-8".toMediaType()
-        val body: String = "{\"Entries\":[{\"EphemeralID\":\"deadbeefdeadbee\",\"DongleClock\":0,\"BeaconClock\":0,\"BeaconID\":1,\"LocationID\":\"LOC00001\"}],\"Type\":0}"
+        //val body: String = "{\"Entries\":[{\"EphemeralID\":\"deadbeefdeadbee\",\"DongleClock\":0,\"BeaconClock\":0,\"BeaconID\":1,\"LocationID\":\"LOC00001\"}],\"Type\":0}"
+        val body: String = String.format("{"            +
+                    "\"Entries\": ["                    +
+                        "{"                             +
+                            "\"EphemeralID\": \"%s\","  +
+                            "\"DongleClock\": %d,"      +
+                            "\"BeaconClock\": %d,"      +
+                            "\"BeaconId\":    %d,"      +
+                            "\"LocationID\":  \"%d\""   +
+                        "}"                             +
+                    "],"                                +
+                    "\"Type\": 0"                       +
+                "}", ephId, dongleTime, beaconTime, beaconId, locationId);
+        Log.d("REQUEST", body);
         val reqBody: RequestBody = body.toRequestBody(contentType)
         val request: Request = Request.Builder()
             .url(url)
@@ -65,6 +97,7 @@ class MainActivity : AppCompatActivity() {
 
         client.newCall(request).execute().use { response -> return response.body?.string() }
     }
+        }
 
 
 }

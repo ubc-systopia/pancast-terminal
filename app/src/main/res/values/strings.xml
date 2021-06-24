@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Pancast Terminal</string>
     <string name="send_request_button">Send Request</string>
+    <string name="scan_button">Scan for Dongles</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+    <string name="title_dongles">Available Dongles</string>
+    <string name="unknown_device">Unknown device</string>
+    <string name="invalid_otp">Please enter a valid OTP</string>
 </resources>
