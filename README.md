@@ -12,5 +12,5 @@ Setup instructions:
 5. If you try to start a bluetooth scan right now, the app will probably crash. Once the app is intstalled, it is neccessary to enable location services for the application in the android preferences on the device. After doing so, reload the application just to be safe.
 
 Modifying target:
-1. Go to the MainActivity file
+1. Go to the `Constants.java` file
 2. Modify the BACKEND_ADDR and BACKEND_PORT fields as needed
