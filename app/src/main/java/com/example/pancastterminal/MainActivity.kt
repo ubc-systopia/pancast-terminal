@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         sendBtn.setOnClickListener(View.OnClickListener {
             thread(start = true) {
                 val response: String? = MainActivity.Companion.makeRequest(
-                    "deadbeefdeadbee",
+                    "NTHU0YVCHgY2Amp8FAA=",
                     Integer(0), Integer(0),
                     Integer(1000), Integer(2000)
                 );
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                             "\"DongleClock\": %d,"      +
                             "\"BeaconClock\": %d,"      +
                             "\"BeaconId\":    %d,"      +
-                            "\"LocationID\":  \"%d\""   +
+                            "\"LocationID\":  %d"       +
                         "}"                             +
                     "],"                                +
                     "\"Type\": 0"                       +
