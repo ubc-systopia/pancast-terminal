@@ -23,6 +23,7 @@ import android.util.Log;
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -67,15 +68,8 @@ public class DongleBleService extends Service {
     private static final byte DATA_TYPE_DATA_4 =         0x0c;
     private static final byte DATA_TYPE_ACK_DATA_4 =     0x0d;
 
-    private class Encounter {
-        public int locationId;
-        public int beaconId;
-        public int beaconTime;
-        public int dongleTime;
-        public byte[] ephId;
-    }
-
-    private Encounter           curEncounter = new Encounter();
+    private Encounter           curEncounter;
+    private ArrayList<Encounter> encounters = new ArrayList<>();
 
     private BleConnectionState  connectionState;
 
@@ -211,7 +205,7 @@ public class DongleBleService extends Service {
                     Log.d(TAG, "Submit OTP");
                     int otp = intent.getIntExtra(EXTRA_USER_OTP, 0);
                     characteristic.setValue(Util.concat(DATA_TYPE_OTP,
-                                Util.encodeLittleEndian(otp, 8)));
+                                Util.encodeLittleEndian(IntegerContainer.make(otp), 8)));
                     gattNotify();
                     break;
             }
@@ -291,7 +285,7 @@ BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PROPER
                     break;
                 }
                 numRecs = Util.decodeLittleEndian(data,
-                        1, Constants.ENCOUNTER_COUNT_SIZE);
+                        1, Constants.ENCOUNTER_COUNT_SIZE).intValue();
                 Log.d(TAG, "Number of records: " + numRecs);
                 if (numRecs > 0) {
                     uploadState = UploadState.DATA_0;
@@ -306,6 +300,7 @@ BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PROPER
                     break;
                 }
                 Log.d(TAG, "Receiving data 0");
+                curEncounter = new Encounter();
                 curEncounter.beaconId = Util.decodeLittleEndian(data,
                         1, Constants.BEACON_ID_SIZE);
                 uploadState = UploadState.DATA_1;
@@ -339,8 +334,8 @@ BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PROPER
                     break;
                 }
                 Log.d(TAG, "Receiving data 3");
-                curEncounter.ephId = Util.copy(data,
-                        1, Constants.EPH_ID_SIZE);
+                curEncounter.ephId = Base64.getEncoder().encodeToString(Util.copy(data,
+                        1, Constants.EPH_ID_SIZE));
                 uploadState = UploadState.DATA_4;
                 setDataType(DATA_TYPE_ACK_DATA_3);
                 gattNotify();
@@ -353,18 +348,12 @@ BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PROPER
                 curEncounter.locationId = Util.decodeLittleEndian(data,
                         1, Constants.LOCATION_ID_SIZE);
                 numRecsReceived++;
-                // upload the encounter
-                String result = MainActivity.Companion.makeRequest(
-                        //new String(curEncounter.ephId, StandardCharsets.)
-                        Base64.getEncoder().encodeToString(curEncounter.ephId),
-                        curEncounter.dongleTime,
-                        curEncounter.beaconTime,
-                        curEncounter.beaconId,
-                        curEncounter.locationId
-                );
-                Log.d(TAG, "Request result: " + result);
+                encounters.add(curEncounter);
                 if (numRecsReceived == numRecs) {
                     Log.i(TAG, "All records received");
+                    // upload the encounters
+                    String result = MainActivity.Companion.makeRequest(encounters);
+                    Log.d(TAG, "Request result: " + result);
                 }
                 uploadState = UploadState.DATA_0;
                 setDataType(DATA_TYPE_ACK_DATA_4);

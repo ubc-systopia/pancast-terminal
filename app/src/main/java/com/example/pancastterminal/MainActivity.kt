@@ -26,11 +26,22 @@ class MainActivity : AppCompatActivity() {
         // Listener for the send request button
         sendBtn.setOnClickListener(View.OnClickListener {
             thread(start = true) {
-                val response: String? = MainActivity.Companion.makeRequest(
-                    "NTHU0YVCHgY2Amp8FAA=",
-                    Integer(0), Integer(0),
-                    Integer(1000), Integer(2000)
-                );
+                val list : ArrayList<Encounter> = ArrayList()
+                val test: Encounter = Encounter()
+                test.beaconId = IntegerContainer.make(12345678)
+                test.beaconTime = IntegerContainer.make(1000)
+                test.dongleTime = IntegerContainer.make(2000)
+                test.locationId = IntegerContainer.make(123456789)
+                test.ephId = "NTHU0YVCHgY2Amp8FAA="
+                list.add(test)
+                val test2: Encounter = Encounter()
+                test2.beaconId = IntegerContainer.make("4294967295")
+                test2.beaconTime = IntegerContainer.make("4294966095")
+                test2.dongleTime = IntegerContainer.make("4294807295")
+                test2.locationId = IntegerContainer("18446744073709551615")
+                test2.ephId = "NTHU0YVCHgY2Amp8FAA="
+                list.add(test2)
+                val response: String? = MainActivity.Companion.makeRequest(list);
                 if (response != null) {
                     Log.d("REQ", response)
                 }
@@ -48,13 +59,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object  {
-    public fun makeRequest(
-        ephId: String,
-        dongleTime: Integer,
-        beaconTime: Integer,
-        beaconId: Integer,
-        locationId: Integer
-    ): String? {
+    public fun makeRequest(encounters: List<Encounter>): String? {
         /*
             Makes a request to a static URL. Uses a trust manager that accepts literally every
             single certificate (INSECURE, vuln. to MITM attacks).
@@ -75,19 +80,7 @@ class MainActivity : AppCompatActivity() {
             .build()
         val url = "${Constants.WEB_PROTOCOL}://${Constants.BACKEND_ADDR}:${Constants.BACKEND_PORT}/upload"
         val contentType: MediaType = "application/json; charset=utf-8".toMediaType()
-        //val body: String = "{\"Entries\":[{\"EphemeralID\":\"deadbeefdeadbee\",\"DongleClock\":0,\"BeaconClock\":0,\"BeaconID\":1,\"LocationID\":\"LOC00001\"}],\"Type\":0}"
-        val body: String = String.format("{"            +
-                    "\"Entries\": ["                    +
-                        "{"                             +
-                            "\"EphemeralID\": \"%s\","  +
-                            "\"DongleClock\": %d,"      +
-                            "\"BeaconClock\": %d,"      +
-                            "\"BeaconId\":    %d,"      +
-                            "\"LocationID\":  %d"       +
-                        "}"                             +
-                    "],"                                +
-                    "\"Type\": 0"                       +
-                "}", ephId, dongleTime, beaconTime, beaconId, locationId);
+        val body: String = Util.makeUploadRequest(encounters)
         Log.d("REQUEST", body);
         val reqBody: RequestBody = body.toRequestBody(contentType)
         val request: Request = Request.Builder()
