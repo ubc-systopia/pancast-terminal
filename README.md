@@ -1,6 +1,6 @@
-# pancast-terminal
-Android application written in Kotlin to act as terminal between dongle and backend
-Currently can only send a single HTTPS request to a backend server at https://<PLACEHOLDER>:8081
+# PanCast Terminal
+Android application written in Java/Kotlin to act as terminal between dongle and backend. Based heavily on examples from https://github.com/android/connectivity-samples (relied on for Bluetooth connection management code). Also inspired by https://github.com/androidthings/sample-bluetooth-le-gattserver.
+
 
 Setup instructions:
 1. Install Android Studio.
@@ -9,8 +9,8 @@ Setup instructions:
 4. In the MainActivity file, change the BACKEND_ADDR to an IP address of your choosing.
 (Note: choosing `localhost` or `127.0.0.1` will fail. The IP address needs to be one accessible from the internet. To find out your own IP address, open your terminal, run `ifconfig`, and look for your internet interface i.e. eth0. There should be a `inet` field that contains your IP address).
 4. Click on the 'run app' button (green triangle) near the top of your screen (running in either emulator or device works).
-5. Hope nothing goes wrong :)
+5. If you try to start a bluetooth scan right now, the app will probably crash. Once the app is intstalled, it is neccessary to enable location services for the application in the android preferences on the device. After doing so, reload the application just to be safe.
 
 Modifying target:
-1. Go to the MainActivity file
+1. Go to the `Constants.java` file
 2. Modify the BACKEND_ADDR and BACKEND_PORT fields as needed
